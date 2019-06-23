@@ -1,0 +1,112 @@
+Vagrant.configure("2") do |config|
+  config.berkshelf.enabled = true
+  config.berkshelf.berksfile_path = "../cookbooks/rio_elasticsearch/Berksfile"
+  config.vm.define "elasticsearch1" do |elasticsearch1|
+    elasticsearch1.vm.box = "bento/centos-7"
+    elasticsearch1.vm.host_name = 'elasticsearch1.redoubt.io.local'
+    elasticsearch1.vm.network "private_network", ip: "192.168.0.16"
+    elasticsearch1.vm.provider "virtualbox" do |v|
+      v.name = "elasticsearch1"
+      v.memory = 8192
+      v.cpus = 2
+      v.gui = false
+    end
+    elasticsearch1.vm.provision "chef_solo" do |chef|
+      chef.arguments = "--chef-license accept"
+      chef.cookbooks_path = "../cookbooks"
+      chef.add_recipe "hurry-up-and-test::set_non_nat_vbox_ip"
+      chef.add_recipe "rio_elasticsearch::install"
+      chef.add_recipe "rio_elasticsearch::firewall"
+      chef.add_recipe "rio_elasticsearch::config"
+      chef.add_recipe "rio_elasticsearch::maintenance"
+      chef.add_recipe "rio_elasticsearch::service"
+      chef.json = {
+        "rio_elasticsearch" => {
+          "clustername" => 'Logging',
+          "clusternodes" => '["192.168.0.16","196.168.0.16"]',
+          "clusterquorem" => '1',
+          "lockmem" => 'false',
+          "javaheapmem" => '4',
+          "initialmasternode" => 'elasticsearch1.redoubt.io.local',
+          "indexmaxage" => '7'
+        }
+      }
+    end
+    elasticsearch1.vm.provision "shell", inline: "systemctl daemon-reload"
+    elasticsearch1.vm.provision "shell", inline: "systemctl start elasticsearch"
+  end
+  config.vm.define "elasticsearch2" do |elasticsearch2|
+    elasticsearch2.vm.box = "bento/centos-7"
+    elasticsearch2.vm.host_name = 'elasticsearch2.redoubt.io.local'
+    elasticsearch2.vm.network "private_network", ip: "192.168.0.17"
+    elasticsearch2.vm.provider "virtualbox" do |v|
+      v.name = "elasticsearch2"
+      v.memory = 8192
+      v.cpus = 2
+      v.gui = false
+    end
+    elasticsearch2.vm.provision "chef_solo" do |chef|
+      chef.arguments = "--chef-license accept"
+      chef.cookbooks_path = "../cookbooks"
+      chef.add_recipe "hurry-up-and-test::set_non_nat_vbox_ip"
+      chef.add_recipe "rio_elasticsearch::install"
+      chef.add_recipe "rio_elasticsearch::firewall"
+      chef.add_recipe "rio_elasticsearch::config"
+      chef.add_recipe "rio_elasticsearch::maintenance"
+      chef.add_recipe "rio_elasticsearch::service"
+      chef.json = {
+        "rio_elasticsearch" => {
+          "clustername" => 'Logging',
+          "clusternodes" => '["192.168.0.16","196.168.0.16"]',
+          "clusterquorem" => '1',
+          "lockmem" => 'false',
+          "javaheapmem" => '4',
+          "initialmasternode" => 'elasticsearch1.redoubt.io.local',
+          "indexmaxage" => '7'
+        }
+      }
+    end
+    elasticsearch2.vm.provision "shell", inline: "systemctl daemon-reload"
+    elasticsearch2.vm.provision "shell", inline: "systemctl start elasticsearch"
+  end
+  config.vm.define "kibana" do |kibana|
+    kibana.vm.box = "bento/centos-7"
+    kibana.vm.host_name = 'kibana.redoubt.io.local'
+    kibana.vm.network "private_network", ip: "192.168.0.18"
+    kibana.vm.provider "virtualbox" do |v|
+      v.name = "kibana"
+      v.memory = 4096
+      v.cpus = 1
+      v.gui = false
+    end
+    kibana.vm.provision "chef_solo" do |chef|
+      chef.arguments = "--chef-license accept"
+      chef.cookbooks_path = "../cookbooks"
+      chef.add_recipe "hurry-up-and-test::set_non_nat_vbox_ip"
+      chef.add_recipe "rio_kibana::install"
+      chef.add_recipe "rio_kibana::firewall"
+      chef.add_recipe "rio_kibana::config"
+      chef.add_recipe "rio_kibana::service"
+    end
+  end
+  config.vm.define "logstash" do |logstash|
+    logstash.vm.box = "bento/centos-7"
+    logstash.vm.host_name = 'logstash.redoubt.io.local'
+    logstash.vm.network "private_network", ip: "192.168.0.19"
+    logstash.vm.provider "virtualbox" do |v|
+      v.name = "logstash"
+      v.memory = 4096
+      v.cpus = 1
+      v.gui = false
+    end
+    logstash.vm.provision "chef_solo" do |chef|
+      chef.arguments = "--chef-license accept"
+      chef.cookbooks_path = "../cookbooks"
+      chef.add_recipe "hurry-up-and-test::set_non_nat_vbox_ip"
+      chef.add_recipe "rio_logstash::install"
+      chef.add_recipe "rio_logstash::firewall"
+      chef.add_recipe "rio_logstash::config"
+      chef.add_recipe "rio_logstash::service"
+    end
+  end
+end

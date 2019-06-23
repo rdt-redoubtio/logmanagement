@@ -1,0 +1,37 @@
+---
+driver:
+  name: vagrant
+
+provisioner:
+  name: chef_zero
+  product_name: chef
+  chef_license: accept
+  channel: stable
+  always_update_cookbooks: true
+
+verifier:
+  name: inspec
+
+platforms:
+  - name: centos-7
+
+suites:
+  - name: kibana
+    driver:
+      vm_hostname: logstash.testnet.local
+      network:
+      - ["private_network", {ip: "192.168.0.18"}]
+      customize:
+        memory: 4096
+        cpus: 1
+    run_list:
+      - recipe[hurry-up-and-test::set_non_nat_vbox_ip]
+      - recipe[rio_kibana::default]
+      - recipe[rio_kibana::install]
+      - recipe[rio_kibana::firewall]
+      - recipe[rio_kibana::config]
+      - recipe[rio_kibana::service]
+    verifier:
+      inspec_tests:
+        - test/integration/default
+    attributes:

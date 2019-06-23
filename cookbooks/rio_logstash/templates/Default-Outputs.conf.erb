@@ -1,0 +1,9 @@
+# Maintained by Chef, do not manually edit this file as changes will not be persistent
+output {
+    if "Generic-Syslog" in [tags]{
+        elasticsearch {
+            hosts => <%= @elasticsearch %>
+            index => "logstash-generic-syslog-%{+YY.MM.dd}"
+        }
+    }
+}

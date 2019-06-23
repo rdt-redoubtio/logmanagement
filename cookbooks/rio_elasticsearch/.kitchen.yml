@@ -1,0 +1,58 @@
+---
+driver:
+  name: vagrant
+
+provisioner:
+  name: chef_zero
+  product_name: chef
+  chef_license: accept
+  channel: stable
+  always_update_cookbooks: true
+
+verifier:
+  name: inspec
+
+platforms:
+  - name: centos-7      
+      
+suites:
+  - name: logdb1
+    driver:
+      vm_hostname: logdb1.testnet.local
+      network:
+      - ["private_network", {ip: "192.168.0.16"}]
+      customize:
+        memory: 4096
+        cpus: 2
+    run_list:
+      - recipe[hurry-up-and-test::set_non_nat_vbox_ip]
+      - recipe[rio_elasticsearch::default]
+      - recipe[rio_elasticsearch::install]
+      - recipe[rio_elasticsearch::firewall]
+      - recipe[rio_elasticsearch::config]
+      - recipe[rio_elasticsearch::maintenance]
+      - recipe[rio_elasticsearch::service]
+    verifier:
+      inspec_tests:
+        - test/integration/default
+    attributes:
+  - name: logdb2
+    driver:
+      vm_hostname: logdb2.testnet.local
+      network:
+      - ["private_network", {ip: "192.168.0.17"}]
+      customize:
+        memory: 4096
+        cpus: 2
+    run_list:
+      - recipe[hurry-up-and-test::set_non_nat_vbox_ip]
+      - recipe[rio_elasticsearch::default]
+      - recipe[rio_elasticsearch::install]
+      - recipe[rio_elasticsearch::firewall]
+      - recipe[rio_elasticsearch::config]
+      - recipe[rio_elasticsearch::maintenance]
+      - recipe[rio_elasticsearch::service]
+    verifier:
+      inspec_tests:
+        - test/integration/default
+    attributes:

@@ -1,0 +1,21 @@
+# Maintained by Chef, do not manually edit this file as changes will not be persistent
+cluster.name: <%= @clustername %>
+node.name: <%= @hostname %>
+node.master: true
+node.data: true
+gateway.expected_nodes: 1
+bootstrap.memory_lock: <%= @lockmem %>
+discovery.zen.minimum_master_nodes: <%= @clusterquorem %>
+discovery.zen.ping.unicast.hosts: <%= @clusternodes %>
+network.host: <%= @ipaddress %>
+http.cors.allow-origin: "/.*/"
+http.cors.enabled: true
+path.data: /var/elasticsearch
+path.logs: /var/log/elasticsearch
+xpack.security.enabled: false
+xpack.graph.enabled: false
+xpack.watcher.enabled: false
+xpack.monitoring.enabled: true
+xpack.monitoring.collection.enabled: true
+cluster.initial_master_nodes:
+    - <%= @initialmasternode %>

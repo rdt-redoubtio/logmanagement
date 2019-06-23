@@ -1,0 +1,9 @@
+# Maintained by Chef, do not manually edit this file as changes will not be persistent
+input {
+    udp {
+        host => "<%= @ipaddress %>"
+        type => "Generic-Syslog"
+        tags => "Generic-Syslog"
+        port => "514"
+    }
+}
